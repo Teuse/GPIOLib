@@ -2,7 +2,7 @@
 #include <thread>
 #include <iostream>
 
-#include "GPIOAccess.h"
+#include "../GPIOAccess.h"
 
 
 int main(int argc, char *argv[]) 

@@ -11,7 +11,7 @@
 
 namespace cfg 
 {
-    std::string sensorId = "28-00000482b243";
+    const std::string sensorId = "28-00000482b243";
 
     std::string sensorPath()           
     {
