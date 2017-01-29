@@ -2,7 +2,7 @@
 #include <thread>
 #include <iostream>
 
-#include "GPIO.h"
+#include "GPIOAccess.h"
 
 
 int main(int argc, char *argv[]) 
@@ -10,17 +10,16 @@ int main(int argc, char *argv[])
     using namespace std;
 
     cout << "Export pin 18 " << endl;
-    GPIO led(18, GPIO::Output);
+    GPIOAccess led(18, GPIOAccess::Output);
 
-    for(int i=0; i<10; ++i)
+    for(int i=0; i<5; ++i)
     {
         this_thread::sleep_for(chrono::seconds(2));
         cout << "Switch ON" << endl;
-        led.value(true);
+        led.set(true);
 
         cout << "Switch OFF" << endl;
-        led.value(false);
-
+        led.set(false);
     }
 
     cout << "Unexport pin 18" << endl;
