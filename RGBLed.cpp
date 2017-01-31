@@ -21,6 +21,7 @@ RGBLed::RGBLed(int pinR, int pinG, int pinB)
 
 RGBLed::~RGBLed()
 {
+    rgb(0.f, 0.f, 0.f);
 }
 
 //---------------------------------------------------------------------
