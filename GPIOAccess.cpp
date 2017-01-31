@@ -88,7 +88,7 @@ auto GPIOAccess::pin()       const -> int                   { return _pin; }
 
 void GPIOAccess::set(bool value)
 {
-    assert( _direction == Input );
+    assert( _direction == Output );
 
     auto valueStr = value ? "1" : "0";
     file::write(file::valueIOPath(_pin), valueStr);
@@ -98,7 +98,7 @@ void GPIOAccess::set(bool value)
 
 bool GPIOAccess::get()
 {
-    assert( _direction == Output );
+    assert( _direction == Input );
 
     auto valueStr = file::read(file::valueIOPath(_pin));
 	return (valueStr != "0");
