@@ -50,17 +50,14 @@ namespace file
 
 //---------------------------------------------------------------------
 
+GPIOAccess::GPIOAccess()
+{ }
+
 GPIOAccess::GPIOAccess(int pin, Direction dir)
 : _pin(pin)
 , _direction(dir)
 {
-    file::write(file::exportPath(), std::to_string(pin));
-
-    auto dirString = (dir == Input) ? "in" : "out";
-    file::write(file::directionPath(_pin), dirString);
-
-    if (dir == Output) 
-        set(false);
+    setup(pin, dir);
 }
 
 GPIOAccess::~GPIOAccess()
@@ -69,6 +66,20 @@ GPIOAccess::~GPIOAccess()
 }
 
 //---------------------------------------------------------------------
+
+void GPIOAccess::setup(int pin, Direction dir)
+{
+    _pin = pin;
+    _direction = dir;
+
+    file::write(file::exportPath(), std::to_string(pin));
+
+    auto dirString = (dir == Input) ? "in" : "out";
+    file::write(file::directionPath(_pin), dirString);
+
+    if (dir == Output) 
+        set(false);
+}
 
 auto GPIOAccess::direction() const -> GPIOAccess::Direction { return _direction; }
 auto GPIOAccess::pin()       const -> int                   { return _pin; }

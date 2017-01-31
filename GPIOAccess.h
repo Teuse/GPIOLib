@@ -9,8 +9,11 @@ public:
         Output
     };
 
+	GPIOAccess();
 	GPIOAccess(int pin, Direction dir);
 	~GPIOAccess();
+
+    void setup(int pin, Direction dir);
 
     auto pin()       const -> int;
     auto direction() const -> Direction;
