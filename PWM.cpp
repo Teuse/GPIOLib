@@ -1,6 +1,7 @@
 #include "PWM.h"
 #include <chrono>
 #include <cassert>
+#include <algorithm>
 
 namespace cfg
 {
