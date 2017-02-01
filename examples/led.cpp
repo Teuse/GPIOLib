@@ -12,12 +12,13 @@ int main(int argc, char *argv[])
     cout << "Test white LED" << endl;
     GPIOAccess led(4, GPIOAccess::Output);
 
-    for(int i=0; i<5; ++i)
+    for(int i=0; i<3; ++i)
     {
         this_thread::sleep_for(chrono::seconds(2));
         cout << "Switch ON" << endl;
         led.set(true);
 
+        this_thread::sleep_for(chrono::seconds(2));
         cout << "Switch OFF" << endl;
         led.set(false);
     }
