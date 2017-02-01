@@ -69,6 +69,7 @@ GPIOAccess::~GPIOAccess()
 
 void GPIOAccess::setup(int pin, Direction dir)
 {
+    _setupDone = true;
     _pin = pin;
     _direction = dir;
 
@@ -88,6 +89,7 @@ auto GPIOAccess::pin()       const -> int                   { return _pin; }
 
 void GPIOAccess::set(bool value)
 {
+    assert( _setupDone );
     assert( _direction == Output );
 
     auto valueStr = value ? "1" : "0";
@@ -98,6 +100,7 @@ void GPIOAccess::set(bool value)
 
 bool GPIOAccess::get()
 {
+    assert( _setupDone );
     assert( _direction == Input );
 
     auto valueStr = file::read(file::valueIOPath(_pin));

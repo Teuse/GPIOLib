@@ -22,6 +22,7 @@ public:
     void set(bool value);
 
 private:
+    bool      _setupDone = false;
     Direction _direction;
     int       _pin;
 };

@@ -9,8 +9,8 @@ int main(int argc, char *argv[])
 { 
     using namespace std;
 
-    cout << "Export pin 18 " << endl;
-    GPIOAccess led(18, GPIOAccess::Output);
+    cout << "Test white LED" << endl;
+    GPIOAccess led(4, GPIOAccess::Output);
 
     for(int i=0; i<5; ++i)
     {
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
         led.set(false);
     }
 
-    cout << "Unexport pin 18" << endl;
+    cout << "Test done" << endl;
 
     return 0;
 }
