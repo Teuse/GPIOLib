@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../GPIOAccess.h"
+#include "../Led.h"
 
 
 int main(int argc, char *argv[]) 
@@ -10,20 +11,40 @@ int main(int argc, char *argv[])
     using namespace std;
 
     cout << "Test white LED" << endl;
-    GPIOAccess led(4, GPIOAccess::Output);
-
-    for(int i=0; i<3; ++i)
     {
-        this_thread::sleep_for(chrono::seconds(2));
-        cout << "Switch ON" << endl;
-        led.set(true);
+        GPIOAccess led(4, GPIOAccess::Output);
 
+        for(int i=0; i<3; ++i)
+        {
+            this_thread::sleep_for(chrono::seconds(2));
+            cout << "Switch ON" << endl;
+            led.set(true);
+
+            this_thread::sleep_for(chrono::seconds(2));
+            cout << "Switch OFF" << endl;
+            led.set(false);
+        }
+
+        cout << "Test done" << endl << endl;
         this_thread::sleep_for(chrono::seconds(2));
-        cout << "Switch OFF" << endl;
-        led.set(false);
     }
 
-    cout << "Test done" << endl;
+
+    cout << "Test white LED without PWM" << endl;
+    {
+        Led led2(4);
+
+        int steps = 10;
+
+        for (int i=0; i<steps; ++i)
+        {
+            cout << "Set alpha = " << (i / (steps-1)) << endl;
+            led2.alpha(true);
+            this_thread::sleep_for(chrono::seconds(2));
+        }
+
+        cout << "Test done" << endl;
+    }
 
     return 0;
 }

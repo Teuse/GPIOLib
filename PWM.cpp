@@ -5,8 +5,7 @@
 
 namespace cfg
 {
-    // double _period      = 1/500.0;
-    double _period      = 1; // seconds
+    double _period      = 1/500.0;
     int    _resolution  = 100;
 }
 
