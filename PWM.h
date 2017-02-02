@@ -34,11 +34,11 @@ private:
     void runLoop();
     void processLoop(float pos);
 
-    Callback            _amplitudeChange;
     std::atomic<bool>   _stopThread = {false};
     std::mutex          _mutex;
     std::thread         _thread;
 
+    Callback            _amplitudeChange;
     std::vector<Signal> _signals;
 };
 

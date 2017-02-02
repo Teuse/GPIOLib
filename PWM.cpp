@@ -80,7 +80,7 @@ void PWM::runLoop()
     {
         for (int i=0; i<cfg::_resolution; ++i)
         {
-            processLoop( i/(cfg::_resolution-1) );
+            processLoop( float(i) / float(cfg::_resolution-1) );
             std::this_thread::sleep_for( sleepDuration );
         }
     }
