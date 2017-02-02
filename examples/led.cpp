@@ -38,8 +38,9 @@ int main(int argc, char *argv[])
 
         for (int i=0; i<steps; ++i)
         {
-            cout << "Set alpha = " << (i / (steps-1)) << endl;
-            led2.alpha(true);
+            auto alpha = float(i) / float(steps-1);
+            cout << "Set alpha = " << alpha << endl;
+            led2.alpha(alpha);
             this_thread::sleep_for(chrono::seconds(2));
         }
 
