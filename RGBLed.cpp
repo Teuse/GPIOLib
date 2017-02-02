@@ -2,39 +2,37 @@
 
  
 RGBLed::RGBLed(int pinR, int pinG, int pinB)
+: _gpioR(pinR, GPIOAccess::Output)
+, _gpioG(pinG, GPIOAccess::Output)
+, _gpioB(pinB, GPIOAccess::Output)
 {
-    Color r(pinR);
-    _colors.push_back(r);
     _pwm.addSignal(0);
-
-    Color g(pinG);
-    _colors.push_back(g);
     _pwm.addSignal(1);
-
-    Color b(pinB);
-    _colors.push_back(b);
     _pwm.addSignal(2);
 
-    _pwm.setCallback([this](int id, bool value){ _colors[id].gpio.set(value); });
+    _pwm.setCallback([this](int id, bool value)
+    { 
+        if      (id == 0) _gpioR.set(value);
+        else if (id == 1) _gpioG.set(value);
+        else if (id == 2) _gpioB.set(value);
+    });
     _pwm.start();
 }
 
 RGBLed::~RGBLed()
 {
-    rgb(0.f, 0.f, 0.f);
+    _pwm.stop();
+    _gpioR.set(false);
+    _gpioG.set(false);
+    _gpioB.set(false);
 }
 
 //---------------------------------------------------------------------
 
 void RGBLed::rgb(float r, float g, float b)
 {
-    _colors[0].value = r;
     _pwm.pulseWidth(0, r);
-
-    _colors[1].value = g;
     _pwm.pulseWidth(1, g);
-
-    _colors[2].value = b;
     _pwm.pulseWidth(2, b);
 }
 

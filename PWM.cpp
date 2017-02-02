@@ -5,7 +5,8 @@
 
 namespace cfg
 {
-    double _period      = 1/500.0;
+    // double _period      = 1/500.0;
+    double _period      = 1; // seconds
     int    _resolution  = 100;
 }
 
@@ -32,6 +33,7 @@ void PWM::start()
 void PWM::stop()
 {
     _stopThread = true;
+    if (_thread.joinable()) _thread.join();
 }
 
 //---------------------------------------------------------------------
@@ -44,11 +46,13 @@ void PWM::setCallback(Callback c)
 void PWM::addSignal(int id, float w)
 {
     assert( w >= 0.f && w <= 1.f);
+    std::lock_guard<std::mutex> lock(_mutex);
+
     Signal s;
     s.id = id;
     s.width = w;
     s.curState = false;
-    _signals.push_back(s);
+    _signals.emplace_back(s);
 
 }
 
@@ -70,25 +74,24 @@ void PWM::runLoop()
 {
     using namespace std::chrono;
 
+    auto sleepTimeMSec = int(1000 * cfg::_period / cfg::_resolution);
+    auto sleepDuration = std::chrono::milliseconds(sleepTimeMSec);
+
     while (!_stopThread)
     {
-        // auto start = system_clock::now();
-
         for (int i=0; i<cfg::_resolution; ++i)
         {
-            processLoop( i/cfg::_resolution );
-            auto microsec = int(1000000 * cfg::_period / cfg::_resolution);
-            std::this_thread::sleep_for( std::chrono::microseconds(microsec) );
+            processLoop( i/(cfg::_resolution-1) );
+            std::this_thread::sleep_for( sleepDuration );
         }
-
-        // auto sleep = ts + _periode - system_clock::now();
-        // std::cout << "sleep: " << sleep << std::endl;
-        // std::this_thread::sleep_for( sleep );
     }
 }
 
 void PWM::processLoop(float pos)
 {
+    std::unique_lock<std::mutex> lock(_mutex, std::try_to_lock);
+    if(!lock.owns_lock()) return;
+
     for (auto& s : _signals)
     {
         bool newState = (pos < s.width);

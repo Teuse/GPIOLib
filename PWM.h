@@ -3,6 +3,8 @@
 #include <atomic>
 #include <functional>
 #include <vector>
+#include <mutex>
+
 
 class PWM 
 {
@@ -34,6 +36,7 @@ private:
 
     Callback            _amplitudeChange;
     std::atomic<bool>   _stopThread = {false};
+    std::mutex          _mutex;
     std::thread         _thread;
 
     std::vector<Signal> _signals;

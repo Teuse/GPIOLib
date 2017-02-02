@@ -1,86 +1,89 @@
 #include "GPIOAccess.h"
-
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <cassert>
-
  
-namespace file 
-{
-    std::string exportPath()           { return "/sys/class/gpio/export"; }
-    std::string unexportPath()         { return "/sys/class/gpio/unexport"; }
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cassert>
+ 
 
-    std::string directionPath(int pin) 
-    { 
-        std::stringstream ss;
-        ss << "/sys/class/gpio/gpio" << pin << "/direction";
-        return ss.str();
-    }
+#define BCM2708_PERI_BASE        0x20000000
+#define GPIO_BASE                (BCM2708_PERI_BASE + 0x200000) /* GPIO controller */
 
-    std::string valueIOPath(int pin)   
-    { 
-        std::stringstream ss;
-        ss << "/sys/class/gpio/gpio" << pin << "/value";
-        return ss.str();
-    }
-
-    //---------------------------------------------------------------------
-    
-    void write(std::string path, std::string value)
-    {
-        std::ofstream myfile;
-        myfile.open (path);
-        myfile << value; 
-        myfile.close();
-    }
-
-    std::string read(std::string path)
-    {
-        std::string value;
-        std::ifstream myfile (path);
-        if (myfile.is_open())
-        {
-            getline(myfile, value);
-            myfile.close();
-        }
-        return value;
-    }
-}
+#define PAGE_SIZE (4*1024)
+#define BLOCK_SIZE (4*1024)
+ 
+ 
+// I/O access
+volatile unsigned *gpio;
+ 
+ 
+// GPIO setup macros. Always use INP_GPIO(x) before using OUT_GPIO(x) or SET_GPIO_ALT(x,y)
+#define INP_GPIO(g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
+#define OUT_GPIO(g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
+#define SET_GPIO_ALT(g,a) *(gpio+(((g)/10))) |= (((a)<=3?(a)+4:(a)==4?3:2)<<(((g)%10)*3))
+ 
+#define GPIO_SET *(gpio+7)  // sets   bits which are 1 ignores bits which are 0
+#define GPIO_CLR *(gpio+10) // clears bits which are 1 ignores bits which are 0
+ 
+#define GET_GPIO(g) (*(gpio+13)&(1<<g)) // 0 if LOW, (1<<g) if HIGH
+ 
+#define GPIO_PULL *(gpio+37) // Pull up/pull down
+#define GPIO_PULLCLK0 *(gpio+38) // Pull up/pull down clock
 
 //---------------------------------------------------------------------
-
-GPIOAccess::GPIOAccess()
-{ }
 
 GPIOAccess::GPIOAccess(int pin, Direction dir)
 : _pin(pin)
 , _direction(dir)
 {
-    setup(pin, dir);
-}
-
-GPIOAccess::~GPIOAccess()
-{
-    file::write(file::unexportPath(), std::to_string(_pin));
-}
-
-//---------------------------------------------------------------------
-
-void GPIOAccess::setup(int pin, Direction dir)
-{
-    _setupDone = true;
     _pin = pin;
     _direction = dir;
 
-    file::write(file::exportPath(), std::to_string(pin));
+    /* open /dev/mem */
+    auto mem_fd = open("/dev/mem", O_RDWR|O_SYNC);
+   if (mem_fd < 0) {
+      printf("can't open /dev/mem \n");
+      exit(-1);
+   }
+ 
+   /* mmap GPIO */
+   void *gpio_map;
+   gpio_map = mmap(
+      NULL,             //Any adddress in our space will do
+      BLOCK_SIZE,       //Map length
+      PROT_READ|PROT_WRITE,// Enable reading & writting to mapped memory
+      MAP_SHARED,       //Shared with other processes
+      mem_fd,           //File to map
+      GPIO_BASE         //Offset to GPIO peripheral
+   );
+ 
+   close(mem_fd); //No need to keep mem_fd open after mmap
+ 
+   if (gpio_map == MAP_FAILED) {
+      // printf("mmap error %d\n", (int)gpio_map);//errno also set!
+      printf("mmap error");//errno also set!
+      exit(-1);
+   }
+ 
+   // Always use volatile pointer!
+   gpio = (volatile unsigned *)gpio_map;
 
-    auto dirString = (dir == Input) ? "in" : "out";
-    file::write(file::directionPath(_pin), dirString);
+
+   INP_GPIO(pin); // must use INP_GPIO before we can use OUT_GPIO
 
     if (dir == Output) 
+    {
+        OUT_GPIO(pin);
         set(false);
+    }
 }
+
+GPIOAccess::~GPIOAccess()
+{}
+
+//---------------------------------------------------------------------
 
 auto GPIOAccess::direction() const -> GPIOAccess::Direction { return _direction; }
 auto GPIOAccess::pin()       const -> int                   { return _pin; }
@@ -89,22 +92,21 @@ auto GPIOAccess::pin()       const -> int                   { return _pin; }
 
 void GPIOAccess::set(bool value)
 {
-    assert( _setupDone );
     assert( _direction == Output );
 
-    auto valueStr = value ? "1" : "0";
-    file::write(file::valueIOPath(_pin), valueStr);
+    if (value)
+        GPIO_SET = 1 << _pin;
+    else
+        GPIO_CLR = 1 << _pin;
 }
 
 //---------------------------------------------------------------------
 
 bool GPIOAccess::get()
 {
-    assert( _setupDone );
     assert( _direction == Input );
 
-    auto valueStr = file::read(file::valueIOPath(_pin));
-	return (valueStr != "0");
+    return (GET_GPIO(_pin) != 0);
 }
 
 

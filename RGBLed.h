@@ -1,7 +1,6 @@
 #pragma once
 #include "GPIOAccess.h"
 #include "PWM.h"
-#include <vector>
 
 class RGBLed
 {
@@ -14,15 +13,11 @@ public:
 
 private:
 
-    struct Color 
-    {
-        Color(int pin) : value(0.f) { gpio.setup(pin,GPIOAccess::Output); }
-        float       value;
-        GPIOAccess  gpio;
-    };
+    GPIOAccess _gpioR;
+    GPIOAccess _gpioG;
+    GPIOAccess _gpioB;
 
     PWM _pwm;
-    std::vector<Color> _colors;
 
 };
 
