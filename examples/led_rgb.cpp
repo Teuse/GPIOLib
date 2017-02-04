@@ -13,7 +13,7 @@
 
 namespace cfg 
 { 
-    int sampleRate          = 8000;
+    int sampleRate          = 44100;
     int preferredFrameSize  = 512;
 }
 

@@ -13,7 +13,7 @@
 
 namespace cfg 
 { 
-    int sampleRate          = 8000;
+    int sampleRate          = 44100;
     int preferredFrameSize  = 512;
 }
 
@@ -26,13 +26,18 @@ int audioCallback( const void*, void *outputBuffer, unsigned long frames,
         const PaStreamCallbackTimeInfo*, PaStreamCallbackFlags,
         void *userData )
 {
-    std::cout << "audio callback" << std::endl;
+    auto start = high_resolution_clock::now();
 
     g_led_pwm.process(cfg::sampleRate, frames);
 
     // Fill output buffer with zero to avoid sound on the soundcard!
     float *out = (float*)outputBuffer;
     std::fill(out, out+frames,0.f);
+
+    auto stop     = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>( t2 - t1 ).count();
+    auto maxDuration = float(1000000 * frames) / cfg::sampleRate;
+    if (duration > maxDuration) std::cout << "Processing took too much time: " << duration << " (max: maxDuration)" << std::endl;
     return paContinue;
 }
 
@@ -66,16 +71,9 @@ int main(int argc, char *argv[])
     {
         GPIOAccess led(4, GPIOAccess::Output);
 
-        for(int i=0; i<3; ++i)
-        {
-            this_thread::sleep_for(chrono::seconds(2));
-            cout << "Switch ON" << endl;
-            led.set(true);
-
-            this_thread::sleep_for(chrono::seconds(2));
-            cout << "Switch OFF" << endl;
-            led.set(false);
-        }
+        this_thread::sleep_for(chrono::seconds(2));
+        cout << "Switch ON" << endl;
+        led.set(true);
 
         cout << "Test done" << endl << endl;
         this_thread::sleep_for(chrono::seconds(2));

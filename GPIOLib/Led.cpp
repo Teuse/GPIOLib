@@ -1,5 +1,9 @@
 #include "Led.h"
 
+namespace cfg
+{
+    float frequency = 1000.f; // Hz
+}
 
  
 Led::Led(int pin)
@@ -34,9 +38,11 @@ void Led::alpha(float alpha)
 void Led::process(int fs, int frames)
 {
     _frameCounter += frames;
+    auto samplesPerPeriod = int(fs / frequency)
+
     if (_on && _alpha < 1.f)
     {
-        auto pos = float(_frameCounter) / float(fs);
+        auto pos = float(_frameCounter) / samplesPerPeriod;
         bool state = pos < _alpha;
         if (state != _curState)
         {
@@ -45,8 +51,8 @@ void Led::process(int fs, int frames)
         }
     }
 
-    if (_frameCounter > fs) 
-        _frameCounter -= fs;
+    if (_frameCounter > samplePerPeriod) 
+        _frameCounter -= samplesPerPeriod;
 }
 
 //---------------------------------------------------------------------
