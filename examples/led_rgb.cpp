@@ -18,7 +18,7 @@ namespace cfg
 }
 
 PaStream* g_stream;
-Led g_led_pwm(4);
+RGBLed g_led_pwm(23,18,24);
 
 //---------------------------------------------------------------------
 
@@ -86,6 +86,25 @@ int main(int argc, char *argv[])
     cout << "Test white LED without PWM" << endl;
     {
         int steps = 10;
+
+        g_led_pwm.rgb(0.1, 0.1, 0.1);
+        this_thread::sleep_for(chrono::seconds(2));
+
+        g_led_pwm.rgb(0.1, 0.9, 0.1);
+        this_thread::sleep_for(chrono::seconds(2));
+
+        g_led_pwm.rgb(0.1, 0.5, 0.2);
+        this_thread::sleep_for(chrono::seconds(2));
+
+        g_led_pwm.rgb(0.6, 0.6, 0.1);
+        this_thread::sleep_for(chrono::seconds(2));
+
+        g_led_pwm.rgb(0.8, 0.8, 0.8);
+        this_thread::sleep_for(chrono::seconds(2));
+
+        g_led_pwm.rgb(1.f, 1.f, 1.f);
+        this_thread::sleep_for(chrono::seconds(2));
+
 
         for (int i=0; i<steps; ++i)
         {
