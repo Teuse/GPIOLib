@@ -13,7 +13,7 @@ public:
     void toggle(bool);
     void alpha(float);
 
-    void process(size_t fs, size_t frames);
+    void process(int fs, int frames);
 
 private:
 
@@ -22,7 +22,7 @@ private:
     std::atomic<float>  _alpha;
 
     bool   _curState;
-    size_t _frameCounter;
+    int _frameCounter;
 };
 
 //---------------------------------------------------------------------
@@ -37,7 +37,7 @@ public:
     void rgb(float, float, float);
     void alpha(float);
     
-    void process(size_t fs, size_t frames);
+    void process(int fs, int frames);
 
 private:
     void updateAlpha();

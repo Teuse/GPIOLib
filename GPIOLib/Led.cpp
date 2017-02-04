@@ -31,7 +31,7 @@ void Led::alpha(float alpha)
 
 //---------------------------------------------------------------------
 
-void Led::process(size_t fs, size_t frames)
+void Led::process(int fs, int frames)
 {
     _frameCounter += frames;
     if (_on && _alpha < 1.f)
@@ -91,7 +91,7 @@ void RGBLed::updateAlpha()
     _b.alpha(_bValue * _alpha);
 }
     
-void RGBLed::process(size_t fs, size_t frames)
+void RGBLed::process(int fs, int frames)
 {
     _r.process(fs, frames);
     _g.process(fs, frames);
