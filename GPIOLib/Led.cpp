@@ -38,7 +38,7 @@ void Led::alpha(float alpha)
 void Led::process(int fs, int frames)
 {
     _frameCounter += frames;
-    auto samplesPerPeriod = int(fs / frequency)
+    auto samplesPerPeriod = int(fs / frequency);
 
     if (_on && _alpha < 1.f)
     {
