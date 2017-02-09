@@ -23,7 +23,7 @@ namespace cfg
 
 //---------------------------------------------------------------------
 
-namespace sensor 
+namespace gpio 
 {
 
     float temperature()

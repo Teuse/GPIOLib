@@ -6,19 +6,18 @@
 
 #include <portaudio.h>
 
-#include <GPIOLib/GPIOAccess.h>
 #include <GPIOLib/Led.h>
 
 
 
 namespace cfg 
 { 
-    int sampleRate          = 44100;
-    int preferredFrameSize  = 512;
+    int sampleRate          = 5000;
+    int preferredFrameSize  = 1;
 }
 
 PaStream* g_stream;
-Led g_led_pwm(4);
+gpio::Led g_led_pwm(4, cfg::sampleRate);
 
 //---------------------------------------------------------------------
 
@@ -26,18 +25,20 @@ int audioCallback( const void*, void *outputBuffer, unsigned long frames,
         const PaStreamCallbackTimeInfo*, PaStreamCallbackFlags,
         void *userData )
 {
-    auto start = high_resolution_clock::now();
+    // using namespace std::chrono;
+    // auto start = high_resolution_clock::now();
 
-    g_led_pwm.process(cfg::sampleRate, frames);
+    g_led_pwm.process();
 
     // Fill output buffer with zero to avoid sound on the soundcard!
-    float *out = (float*)outputBuffer;
-    std::fill(out, out+frames,0.f);
+    // float *out = (float*)outputBuffer;
+    // std::fill(out, out+frames,0.f);
+    //
+    // auto end         = high_resolution_clock::now();
+    // auto duration    = duration_cast<microseconds>( end - start ).count();
+    // auto maxDuration = float(1000000 * frames) / cfg::sampleRate;
+    // if (duration > maxDuration) std::cout << "Processing took too much time: " << duration << " (max: " << maxDuration << ")" << std::endl;
 
-    auto stop     = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>( t2 - t1 ).count();
-    auto maxDuration = float(1000000 * frames) / cfg::sampleRate;
-    if (duration > maxDuration) std::cout << "Processing took too much time: " << duration << " (max: maxDuration)" << std::endl;
     return paContinue;
 }
 
@@ -47,7 +48,7 @@ void startPortaudio()
     if( err != paNoError ) { std::cout << "Failed to initialize Portaudio: " << Pa_GetErrorText(err) << std::endl; std::abort(); }
 
     err = Pa_OpenDefaultStream( &g_stream, 0, 1, // input/output channel
-            paInt16, cfg::sampleRate, cfg::preferredFrameSize,
+            paInt16, double(cfg::sampleRate), cfg::preferredFrameSize,
             audioCallback, nullptr );
     if( err != paNoError ) { std::cout << "Failed to open Stream: " << Pa_GetErrorText(err) << std::endl; std::abort(); }
 
@@ -69,11 +70,12 @@ int main(int argc, char *argv[])
 
     cout << "Test white LED" << endl;
     {
-        GPIOAccess led(4, GPIOAccess::Output);
+        gpio::Led led(4) ;
 
-        this_thread::sleep_for(chrono::seconds(2));
         cout << "Switch ON" << endl;
-        led.set(true);
+        led.toggle(true);
+        this_thread::sleep_for(chrono::seconds(2));
+        led.toggle(false);
 
         cout << "Test done" << endl << endl;
         this_thread::sleep_for(chrono::seconds(2));
@@ -83,6 +85,10 @@ int main(int argc, char *argv[])
     startPortaudio();
     cout << "Test white LED without PWM" << endl;
     {
+        std::cout << "Switch on with alpha = 1.0" << std::endl;
+        g_led_pwm.toggle(true);
+        g_led_pwm.alpha(1.f);
+        this_thread::sleep_for(chrono::seconds(2));
         int steps = 10;
 
         for (int i=0; i<steps; ++i)
@@ -93,6 +99,7 @@ int main(int argc, char *argv[])
             this_thread::sleep_for(chrono::seconds(2));
         }
 
+        g_led_pwm.toggle(false);
         cout << "Test done" << endl;
     }
     stopPortaudio();

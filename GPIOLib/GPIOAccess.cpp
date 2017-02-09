@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <cassert>
  
+namespace gpio {
 
 #define BCM2708_PERI_BASE        0x20000000
 #define GPIO_BASE                (BCM2708_PERI_BASE + 0x200000) /* GPIO controller */
@@ -33,6 +34,7 @@ volatile unsigned *gpio;
 #define GPIO_PULLCLK0 *(gpio+38) // Pull up/pull down clock
 
 //---------------------------------------------------------------------
+
 
 GPIOAccess::GPIOAccess(int pin, Direction dir)
 : _pin(pin)
@@ -109,4 +111,5 @@ bool GPIOAccess::get()
     return (GET_GPIO(_pin) != 0);
 }
 
+}
 

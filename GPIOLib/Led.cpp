@@ -1,16 +1,18 @@
 #include "Led.h"
+#include <cassert>
+#include <iostream>
 
 namespace cfg
 {
-    float frequency = 1000.f; // Hz
+    int frequency = 50;
 }
 
+namespace gpio
+{
  
-Led::Led(int pin)
+Led::Led(int pin, int fs)
 : _gpio(pin, GPIOAccess::Output)
-, _on(false)
-, _alpha(1.f)
-, _curState(false)
+, _samplesPerPeriod(fs / cfg::frequency)
 {}
 
 Led::~Led()
@@ -21,50 +23,59 @@ Led::~Led()
 
 //---------------------------------------------------------------------
 
+bool Led::usingPWM()
+{
+    return _samplesPerPeriod > 0;
+}
+
 void Led::toggle(bool on)
 {
     _on = on;
-    if (_alpha >= 1.f)
+    if (!usingPWM())
         _gpio.set(on);
 }
 
 void Led::alpha(float alpha)
 {
-    _alpha = alpha;
+    _alphaFactor = int(alpha * _samplesPerPeriod);
 }
 
 //---------------------------------------------------------------------
 
-void Led::process(int fs, int frames)
+void Led::setState(bool state)
 {
-    _frameCounter += frames;
-    auto samplesPerPeriod = int(fs / frequency);
-
-    if (_on && _alpha < 1.f)
+    if (state != _curState)
     {
-        auto pos = float(_frameCounter) / samplesPerPeriod;
-        bool state = pos < _alpha;
-        if (state != _curState)
-        {
-            _curState = state;
-            _gpio.set(state);
-        }
+        _curState = state;
+        _gpio.set(state);
     }
+}
 
-    if (_frameCounter > samplePerPeriod) 
-        _frameCounter -= samplesPerPeriod;
+void Led::process()
+{
+    assert(usingPWM());
+
+    if (_on && usingPWM())
+    {
+        _frameCounter = (++_frameCounter >= _samplesPerPeriod) ? 0 : _frameCounter; 
+
+        bool state = _frameCounter < _alphaFactor;
+        setState(state);
+    }
+    else  
+    {
+        _frameCounter = 0;
+        setState(false);
+    }
 }
 
 //---------------------------------------------------------------------
 
-RGBLed::RGBLed(int pinR, int pinG, int pinB)
-: _r(pinR)
-, _g(pinG)
-, _b(pinB)
-, _alpha(1.f)
-, _rValue(1.f)
-, _gValue(1.f)
-, _bValue(1.f)
+RGBLed::RGBLed(int pinR, int pinG, int pinB, int fs)
+: _r(pinR, fs)
+, _g(pinG, fs)
+, _b(pinB, fs)
+, _rgba({1.f, 1.f, 1.f, 1.f})
 {}
 
 //---------------------------------------------------------------------
@@ -78,29 +89,31 @@ void RGBLed::toggle(bool on)
 
 void RGBLed::rgb(float r, float g, float b)
 {
-    _rValue = r;
-    _gValue = g;
-    _bValue = b;
+    _rgba[0] = r;
+    _rgba[1] = g;
+    _rgba[2] = b;
     updateAlpha();
 }
 
 void RGBLed::alpha(float a)
 {
-    _alpha = a;
+    _rgba[3] = a;
     updateAlpha();
 }
 
 void RGBLed::updateAlpha()
 {
-    _r.alpha(_rValue * _alpha);
-    _g.alpha(_gValue * _alpha);
-    _b.alpha(_bValue * _alpha);
+    _r.alpha(_rgba[0] * _rgba[3]);
+    _g.alpha(_rgba[1] * _rgba[3]);
+    _b.alpha(_rgba[2] * _rgba[3]);
 }
     
-void RGBLed::process(int fs, int frames)
+void RGBLed::process()
 {
-    _r.process(fs, frames);
-    _g.process(fs, frames);
-    _b.process(fs, frames);
+    _r.process();
+    _g.process();
+    _b.process();
+}
+
 }
 

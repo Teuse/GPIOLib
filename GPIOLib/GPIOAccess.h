@@ -1,5 +1,8 @@
 #pragma once
 
+namespace gpio
+{
+
 class GPIOAccess
 {
 public:
@@ -24,4 +27,5 @@ private:
     Direction _direction;
     int       _pin;
 };
+}
 

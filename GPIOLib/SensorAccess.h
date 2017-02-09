@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sensor
+namespace gpio 
 {
     static float temperature();
 }

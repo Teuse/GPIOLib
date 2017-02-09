@@ -10,7 +10,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #--- Collecting all files
 #--------------------------------------------------------------------
 
-file(GLOB FILES_GPIO RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/GPIOLib/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/GPIOLib/*.h)
+set(FILES_GPIO GPIOLib/GPIOAccess.cpp  
+    GPIOLib/GPIOAccess.h 
+    GPIOLib/Led.cpp 
+    GPIOLib/Led.h 
+    GPIOLib/SensorAccess.cpp  
+    GPIOLib/SensorAccess.h)
 source_group("GPIOLib" FILES ${FILES_GPIO})
 
 #--------------------------------------------------------------------

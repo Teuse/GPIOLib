@@ -1,28 +1,36 @@
 #pragma once
 #include "GPIOAccess.h"
 #include <atomic>
+#include <array>
 
+namespace gpio {
 
 class Led
 {
 public:
 
-	Led(int pin);
+	Led(int pin, int fs=0);
 	~Led();
 
     void toggle(bool);
     void alpha(float);
 
-    void process(int fs, int frames);
+    void process();
 
 private:
 
-    GPIOAccess          _gpio;
-    std::atomic<bool>   _on;
-    std::atomic<float>  _alpha;
+    bool usingPWM();
+    void setState(bool);
 
-    bool   _curState;
-    int _frameCounter;
+    GPIOAccess  _gpio;
+    int         _fs;
+
+    std::atomic<bool> _on          = {false};
+    std::atomic<int>  _samplesPerPeriod;
+    std::atomic<int>  _alphaFactor = {0};
+
+    bool _curState     = false;
+    int  _frameCounter = 0;
 };
 
 //---------------------------------------------------------------------
@@ -30,23 +38,22 @@ private:
 class RGBLed
 {
 public:
-    RGBLed(int pinR, int pinG, int pinB);
+    RGBLed(int pinR, int pinG, int pinB, int fs=0);
     ~RGBLed() {}
 
     void toggle(bool);
     void rgb(float, float, float);
     void alpha(float);
     
-    void process(int fs, int frames);
+    void process();
 
 private:
     void updateAlpha();
     Led _r;
     Led _g;
     Led _b;
-    float _alpha;
-    float _rValue;
-    float _gValue;
-    float _bValue;
+    std::array<float, 4> _rgba;
 };
+
+}
 
