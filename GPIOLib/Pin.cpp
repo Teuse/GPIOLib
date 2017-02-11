@@ -1,4 +1,4 @@
-#include "GPIOAccess.h"
+#include "Pin.h"
  
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +36,7 @@ volatile unsigned *gpio;
 //---------------------------------------------------------------------
 
 
-GPIOAccess::GPIOAccess(int pin, Direction dir)
+Pin::Pin(int pin, Direction dir)
 : _pin(pin)
 , _direction(dir)
 {
@@ -44,10 +44,10 @@ GPIOAccess::GPIOAccess(int pin, Direction dir)
     _direction = dir;
 
     /* open /dev/mem */
-    auto mem_fd = open("/dev/mem", O_RDWR|O_SYNC);
-   if (mem_fd < 0) {
+    auto file = open("/dev/mem", O_RDWR|O_SYNC);
+   if (file < 0) {
       printf("can't open /dev/mem \n");
-      exit(-1);
+      return;
    }
  
    /* mmap GPIO */
@@ -57,11 +57,11 @@ GPIOAccess::GPIOAccess(int pin, Direction dir)
       BLOCK_SIZE,       //Map length
       PROT_READ|PROT_WRITE,// Enable reading & writting to mapped memory
       MAP_SHARED,       //Shared with other processes
-      mem_fd,           //File to map
+      file,             //File to map
       GPIO_BASE         //Offset to GPIO peripheral
    );
  
-   close(mem_fd); //No need to keep mem_fd open after mmap
+   close(file); //No need to keep file open after mmap
  
    if (gpio_map == MAP_FAILED) {
       // printf("mmap error %d\n", (int)gpio_map);//errno also set!
@@ -82,17 +82,17 @@ GPIOAccess::GPIOAccess(int pin, Direction dir)
     }
 }
 
-GPIOAccess::~GPIOAccess()
+Pin::~Pin()
 {}
 
 //---------------------------------------------------------------------
 
-auto GPIOAccess::direction() const -> GPIOAccess::Direction { return _direction; }
-auto GPIOAccess::pin()       const -> int                   { return _pin; }
+auto Pin::direction() const -> Pin::Direction { return _direction; }
+auto Pin::pin()       const -> int            { return _pin; }
 
 //---------------------------------------------------------------------
 
-void GPIOAccess::set(bool value)
+void Pin::set(bool value)
 {
     assert( _direction == Output );
 
@@ -104,7 +104,7 @@ void GPIOAccess::set(bool value)
 
 //---------------------------------------------------------------------
 
-bool GPIOAccess::get()
+bool Pin::get()
 {
     assert( _direction == Input );
 

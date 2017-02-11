@@ -1,4 +1,5 @@
-#include "SensorAccess.h"
+#include "Sensors.h"
+
 
 #include <fstream>
 #include <cassert>
@@ -26,7 +27,7 @@ namespace cfg
 namespace gpio 
 {
 
-    float temperature()
+    float Sensors::temperature()
     {
         using namespace std;
 

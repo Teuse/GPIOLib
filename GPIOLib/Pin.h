@@ -3,7 +3,7 @@
 namespace gpio
 {
 
-class GPIOAccess
+class Pin
 {
 public:
 
@@ -12,8 +12,8 @@ public:
         Output
     };
 
-	GPIOAccess(int pin, Direction dir);
-	~GPIOAccess();
+	Pin(int pin, Direction dir);
+	~Pin();
 
 
     auto pin()       const -> int;
@@ -23,7 +23,6 @@ public:
     void set(bool value);
 
 private:
-    bool      _setupDone = false;
     Direction _direction;
     int       _pin;
 };

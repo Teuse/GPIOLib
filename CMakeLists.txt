@@ -10,12 +10,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #--- Collecting all files
 #--------------------------------------------------------------------
 
-set(FILES_GPIO GPIOLib/GPIOAccess.cpp  
-    GPIOLib/GPIOAccess.h 
+set(FILES_GPIO 
+    GPIOLib/Pin.cpp  
+    GPIOLib/Pin.h 
     GPIOLib/Led.cpp 
     GPIOLib/Led.h 
-    GPIOLib/SensorAccess.cpp  
-    GPIOLib/SensorAccess.h)
+    GPIOLib/Sensors.cpp  
+    GPIOLib/Sensors.h)
 source_group("GPIOLib" FILES ${FILES_GPIO})
 
 #--------------------------------------------------------------------

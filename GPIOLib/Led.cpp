@@ -11,14 +11,14 @@ namespace gpio
 {
  
 Led::Led(int pin, int fs)
-: _gpio(pin, GPIOAccess::Output)
+: _pin(pin, Pin::Output)
 , _samplesPerPeriod(fs / cfg::frequency)
 {}
 
 Led::~Led()
 {
     toggle(false);
-    _gpio.set(false);
+    _pin.set(false);
 }
 
 //---------------------------------------------------------------------
@@ -32,7 +32,7 @@ void Led::toggle(bool on)
 {
     _on = on;
     if (!usingPWM())
-        _gpio.set(on);
+        _pin.set(on);
 }
 
 void Led::alpha(float alpha)
@@ -47,7 +47,7 @@ void Led::setState(bool state)
     if (state != _curState)
     {
         _curState = state;
-        _gpio.set(state);
+        _pin.set(state);
     }
 }
 

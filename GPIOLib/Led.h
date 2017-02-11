@@ -1,5 +1,5 @@
 #pragma once
-#include "GPIOAccess.h"
+#include <GPIOLib/Pin.h>
 #include <atomic>
 #include <array>
 
@@ -22,8 +22,8 @@ private:
     bool usingPWM();
     void setState(bool);
 
-    GPIOAccess  _gpio;
-    int         _fs;
+    Pin  _pin;
+    int  _fs;
 
     std::atomic<bool> _on          = {false};
     std::atomic<int>  _samplesPerPeriod;
