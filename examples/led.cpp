@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 
     cout << "Test white LED" << endl;
     {
-        gpio::Led led(4) ;
+        gpio::Led led(17);
 
         cout << "Switch ON" << endl;
         led.toggle(true);
