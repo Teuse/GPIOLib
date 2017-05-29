@@ -1,5 +1,5 @@
 #pragma once
-#include <GPIOLib/Pin.h>
+#include <GPIO/Pin.h>
 #include <atomic>
 #include <array>
 
