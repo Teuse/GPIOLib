@@ -1,7 +1,8 @@
 #pragma once
 
-namespace gpio
-{
+namespace gpio {
+
+//---------------------------------------------------------------------
 
 class Pin
 {
