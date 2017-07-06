@@ -23,7 +23,7 @@ private:
     void setState(bool);
 
     Pin  _pin;
-    int  _fs;
+    //int  _fs;
 
     std::atomic<bool> _on          = {false};
     std::atomic<int>  _samplesPerPeriod;

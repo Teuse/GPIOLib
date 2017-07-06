@@ -37,8 +37,8 @@ volatile unsigned *gpio;
 
 
 Pin::Pin(int pin, Direction dir)
-: _pin(pin)
-, _direction(dir)
+: _direction(dir)
+, _pin(pin)
 {
     _pin = pin;
     _direction = dir;

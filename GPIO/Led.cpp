@@ -75,7 +75,7 @@ RGBLed::RGBLed(int pinR, int pinG, int pinB, int fs)
 : _r(pinR, fs)
 , _g(pinG, fs)
 , _b(pinB, fs)
-, _rgba({1.f, 1.f, 1.f, 1.f})
+, _rgba({{1.f, 1.f, 1.f, 1.f}})
 {}
 
 //---------------------------------------------------------------------
